@@ -1,7 +1,7 @@
 # Cinnamon Menu + Overview integration = Cinnamon SuperView
 
 Brings a bit of GNOME-style flair to Cinnamon: pressing the **Super key**
-now opens the **Overview** (Expo-style view of your windows/workspaces)
+now opens the **Overview** (Expo-style view of your windows)
 together with the main menu, as one seamless experience.
 
 Open the menu → see your windows laid out behind it. Close the menu (pick
@@ -11,19 +11,20 @@ part of the menu now.
 
 ## Why
 
-Cinnamon has always had the Overview, but it lives on its own, bound to its
-own key, disconnected from the menu you actually use to launch things. This
-project ties the two together so opening the menu doubles as a quick visual
+Cinnamon has always had the Overview, but it lives on its own (underused),
+bound to its own key, disconnected from the menu you actually use to launch
+things.  
+This project ties the two together so opening the menu doubles as a quick visual
 overview of what you're already doing - closer to how GNOME's activities
 view works, but keeping Cinnamon's traditional menu.
 
 ## What you get
 
-- Super key / applet click → menu **and** overview open together
-- Overview closes automatically in lockstep with the menu - no lingering
-  overview, no manual dismissal
+- Super key → **toggles** menu **and** overview open together
+  (click on menu in panel deliberately opens only the menu -assuming you want menu only)
+- Overview closes automatically with the menu - no lingering overview, no manual dismissal
 - Toggleable - if you don't want the overview tagging along, turn it off in GSettings
-  and the menu behaves exactly like before
+  and the menu behaves exactly like before, and customize if you want panel visible or not
 
 ## Compatibility
 
@@ -65,4 +66,4 @@ sudo cp cinnamon6.6.x/overview.js /usr/share/cinnamon/js/ui/overview.js
 gsettings set org.cinnamon.desktop.overview overview-in-menu true
 gsettings set org.cinnamon.desktop.overview panel-enabled true
 ```  
-...or simply use GUI dconf-editor
+...or simply use GUI (dconf-editor)
