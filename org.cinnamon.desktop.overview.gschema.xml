@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+    <schema id="org.cinnamon.desktop.overview"
+            path="/org/cinnamon/desktop/overview/">
+
+        <key name="panel-enabled" type="b">
+            <default>false</default>
+            <summary>Keep the panel visible in the Overview</summary>
+            <description>
+                Keep Cinnamon panels visible and enabled while the Overview is shown.
+            </description>
+        </key>
+
+        <key name="overview-in-menu" type="b">
+            <default>false</default>
+            <summary>Show the Overview together with the Menu</summary>
+            <description>
+                Show the Overview behind the Cinnamon Menu when the Menu is opened with the Super key.
+            </description>
+        </key>
+
+    </schema>
+
+</schemalist>
