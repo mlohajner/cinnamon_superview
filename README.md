@@ -20,10 +20,10 @@ view works, but keeping Cinnamon's traditional menu.
 
 ## What you get
 
-- Super key → **toggles** menu **and** overview open together
-  (click on menu in panel deliberately opens only the menu -assuming you want menu only)
+- Super key → **toggles** menu **and** overview (open together)  
+  whiile click on menu in panel deliberately opens only the menu -assuming you want menu only!
 - Overview closes automatically with the menu - no lingering overview, no manual dismissal
-- Toggleable - if you don't want the overview tagging along, turn it off in GSettings
+- Toggleable - if you don't want the overview tagging along, turn it off in GSettings  
   and the menu behaves exactly like before, and customize if you want panel visible or not
 
 ## Compatibility
