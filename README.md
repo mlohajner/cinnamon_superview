@@ -51,7 +51,7 @@ sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 cd /usr/share/cinnamon
 sudo patch -p1 < /path/to/superview-6.6.x.patch
 ```  
-**OR just use pre-patched included files:  **
+**OR just use included pre-patched files:  **
 ```bash
 # same version principle applies here: matching your version
 
