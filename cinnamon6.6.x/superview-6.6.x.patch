@@ -1,0 +1,182 @@
+diff --git a/js/ui/overview.js b/js/ui/overview.js
+--- a/js/ui/overview.js
++++ b/js/ui/overview.js
+@@ -1,5 +1,6 @@
+ // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
+ const Clutter = imports.gi.Clutter;
++const Gio = imports.gi.Gio;
+ const Gtk = imports.gi.Gtk;
+ const Meta = imports.gi.Meta;
+ const Mainloop = imports.mainloop;
+@@ -60,6 +61,7 @@
+         this._windowSwitchTimestamp = 0;
+         this._lastActiveWorkspaceIndex = -1;
+         this._lastHoveredWindow = null;
++        this._settings = new Gio.Settings({ schema_id: "org.cinnamon.desktop.overview" });
+     },
+ 
+     // The members we construct that are implemented in JS might
+@@ -283,7 +285,8 @@
+ 
+         this.workspacesView = new WorkspacesView.WorkspacesView();
+         global.overlay_group.add_actor(this.workspacesView.actor);
+-        Main.panelManager.disablePanels();
++        if (!this._settings.get_boolean("panel-enabled"))
++            Main.panelManager.disablePanels();
+ 
+         this._coverPane.raise_top();
+         this._coverPane.show();
+diff --git a/applets/menu@cinnamon.org/applet.js b/applets/menu@cinnamon.org/applet.js
+--- a/applets/menu@cinnamon.org/applet.js
++++ b/applets/menu@cinnamon.org/applet.js
+@@ -444,6 +444,7 @@
+         }
+         if (closeMenu) {
+             this._appButton.applet.toggleContextMenu(this._appButton);
++            this._appButton.applet._closeOverview = true;
+             this._appButton.applet.menu.close();
+         }
+         return false;
+@@ -502,6 +503,7 @@
+     activate() {
+         this.unhighlight();
+         this.app.open_new_window(-1);
++        this.applet._closeOverview = true;
+         this.applet.menu.close();
+     }
+ 
+@@ -615,6 +617,7 @@
+             }
+         }
+ 
++        this.applet._closeOverview = true;
+         this.applet.menu.close();
+     }
+ }
+@@ -699,6 +702,7 @@
+     activate() {
+         try {
+             this.provider.on_result_selected(this.result);
++            this.applet._closeOverview = true;
+             this.applet.menu.close();
+         } catch(e) {
+             global.logError(e);
+@@ -741,6 +745,7 @@
+ 
+     activate() {
+         this.place.launch();
++        this.applet._closeOverview = true;
+         this.applet.menu.close();
+     }
+ }
+@@ -774,6 +779,7 @@
+     activate() {
+         try {
+             Gio.app_info_launch_default_for_uri(this.uri, global.create_app_launch_context());
++            this.applet._closeOverview = true;
+             this.applet.menu.close();
+         } catch (e) {
+             let source = new MessageTray.SystemNotificationSource();
+@@ -815,6 +821,7 @@
+     activate() {
+         try {
+             Gio.app_info_launch_default_for_uri(this.uri, global.create_app_launch_context());
++            this.applet._closeOverview = true;
+             this.applet.menu.close();
+         } catch (e) {
+             let source = new MessageTray.SystemNotificationSource();
+@@ -1110,10 +1117,14 @@
+ class Menu extends Applet.AppletPopupMenu {
+     constructor(launcher, orientation) {
+         super(launcher, orientation);
++        this._launcher = launcher;
+     }
+ 
+     _onKeyPressEvent(actor, event) {
+-        if (event.get_key_symbol() === Clutter.KEY_Escape) {
++        let symbol = event.get_key_symbol();
++        if (symbol === Clutter.KEY_Escape ||
++            (symbol === Clutter.KEY_Super_L && this._launcher._overviewSettings.get_boolean("overview-in-menu"))) {
++            this._launcher._closeOverview = true;
+             this.close(false);
+             return true;
+         }
+@@ -1232,6 +1243,14 @@
+         this._canUninstallApps = GLib.file_test("/usr/bin/cinnamon-remove-application", GLib.FileTest.EXISTS);
+         this.RecentManager = DocInfo.getDocManager();
+         this.privacy_settings = new Gio.Settings( {schema_id: PRIVACY_SCHEMA} );
++        this._overviewSettings = new Gio.Settings({ schema_id: "org.cinnamon.desktop.overview" });
++        this._menuOverview = false;
++        // Postavlja se na true SAMO kad mi u applet.js eksplicitno odlučimo
++        // zatvoriti meni (odabir/pokretanje stavke, Escape, "Clear list",
++        // lock/logout/shutdown...). Ostaje false ako se meni zatvori iz nekog
++        // razloga izvan naše kontrole (npr. klik mišem izvan menija, koji
++        // zatvara PopupMenuManager u cinnamon core-u, bez poziva applet.js-a).
++        this._closeOverview = false;
+         this.noRecentDocuments = true;
+         this._activeContextMenuParent = null;
+         this._activeContextMenuItem = null;
+@@ -1278,7 +1297,18 @@
+     _updateKeybinding() {
+         Main.keybindingManager.addXletHotKey(this, "overlay-key", this.overlayKey, () => {
+             if (!Main.overview.visible && !Main.expo.visible) {
+-                this.menu.toggle_with_options(this.enableAnimation);
++                if (this._overviewSettings.get_boolean("overview-in-menu")) {
++                    this._menuOverview = true;
++                    this._closeOverview = false;
++                    Main.overview.show();
++
++                    Mainloop.idle_add(() => {
++                        this.menu.toggle_with_options(this.enableAnimation);
++                        return false;
++                    });
++                } else {
++                    this.menu.toggle_with_options(this.enableAnimation);
++                }
+             }
+         });
+     }
+@@ -1455,6 +1485,11 @@
+             this._scrollToButton(null, this.applicationsScrollView);
+             this._scrollToButton(null, this.categoriesScrollView);
+             this._scrollToButton(null, this.sidebarScrollView);
++            if (this._menuOverview) {
++                this._menuOverview = false;
++                if (this._closeOverview)
++                    Main.overview.hide();
++            }
+         }
+     }
+ 
+@@ -2237,6 +2272,7 @@
+             button.addLabel(button.name, 'appmenu-application-button-label');
+             button.label.set_style('font-weight: bold;');
+             button.activate = () => {
++                this._closeOverview = true;
+                 this.menu.close();
+                 (new Gtk.RecentManager()).purge_items();
+             };
+@@ -2381,6 +2417,7 @@
+         button.actor.add_style_class_name("appmenu-system-button-lock");
+ 
+         button.activate = () => {
++            this._closeOverview = true;
+             this.menu.close();
+ 
+             let screensaver_settings = new Gio.Settings({ schema_id: "org.cinnamon.desktop.screensaver" });
+@@ -2407,6 +2444,7 @@
+         button.actor.add_style_class_name("appmenu-system-button-logout");
+ 
+         button.activate = () => {
++            this._closeOverview = true;
+             this.menu.close();
+             this._session.LogoutRemote(0);
+         };
+@@ -2420,6 +2458,7 @@
+         button.actor.add_style_class_name("appmenu-system-button-shutdown");
+ 
+         button.activate = () => {
++            this._closeOverview = true;
+             this.menu.close();
+             this._session.ShutdownRemote();
+         };
