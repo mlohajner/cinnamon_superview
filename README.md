@@ -1,4 +1,4 @@
-# Cinnamon Menu + Overview integration = Cinnamon SuperView
+# Cinnamon Menu + Overview = Cinnamon SuperView
 
 Brings a bit of GNOME-style flair to Cinnamon: pressing the **Super key**
 now opens the **Overview** (Expo-style view of your windows)
