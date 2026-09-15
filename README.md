@@ -20,7 +20,7 @@ view works, but keeping Cinnamon's traditional menu.
 ## What you get
 
 - Super key / applet click → menu **and** overview open together
-- Overview closes automatically in lockstep with the menu — no lingering
+- Overview closes automatically in lockstep with the menu - no lingering
   overview, no manual dismissal
 - Toggleable - if you don't want the overview tagging along, turn it off in GSettings
   and the menu behaves exactly like before
