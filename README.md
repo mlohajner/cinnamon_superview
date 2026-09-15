@@ -1,7 +1,7 @@
 # Menu + Overview = `Cinnamon SuperView`
 
 Brings a bit of GNOME-style flair to Cinnamon: pressing the **Super key**
-now opens the **Overview** (Expo-style view of your windows/workspaces)
+now opens the **Overview** (Expo-style view of your windows)
 together with the main menu, as one seamless experience.
 
 Open the menu → see your windows laid out behind it. Close the menu (pick
